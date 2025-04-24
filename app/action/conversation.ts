@@ -1,3 +1,4 @@
+import axios from "axios";
 import { sleep } from "../helper/time";
 import ViewMessage from "../model/ViewMessage";
 import LoadState from "./state/loadState";
@@ -57,16 +58,26 @@ export const sendMessage = async ({message}:{message: string}) => {
         LoadState.getState().isLoading = true;
         LoadState.getState().notify();
 
-        await sleep(700);
-        //TODO : 最初の会話を取得
-        MessagesState.getState().messages.push(
-            new ViewMessage({
-                type: "assistant",
-                message: "Hello! How are you doing?",
-                subMessage: null,
-            })
-        );
-        MessagesState.getState().notify();
+        
+        try {
+            const response = await axios.post("/api/getFirstTalk", {
+                situation: message,
+                conversation: "",
+            });
+
+            MessagesState.getState().messages.push(
+                new ViewMessage({
+                    type: "assistant",
+                    message: response.data.message,
+                    subMessage: null,
+                })
+            );
+            MessagesState.getState().notify();
+
+        } catch (error) {
+            console.error("Error:", error);
+            //TODO エラー処理
+        }
 
         LoadState.getState().isLoading = false;
         LoadState.getState().notify();
@@ -90,26 +101,34 @@ export const sendMessage = async ({message}:{message: string}) => {
         LoadState.getState().isLoading = true;
         LoadState.getState().notify();
         
-        await sleep(700);
+        try{
+            const response = await axios.post("/api/getResponse", {
+                situation: MessagesState.getState().messages[0].message,
+                conversation: message,
+            });
 
-        const userMessage = MessagesState.getState().messages.pop(); // ユーザーメッセージを削除
-        MessagesState.getState().messages.push(
-            new ViewMessage({
-                type: "user",
-                message: userMessage?.message ?? "",
-                subMessage: "OK！問題ないよ！",
-            })
-        );
+            const userMessage = MessagesState.getState().messages.pop(); // ユーザーメッセージを添削込みの状態にする
+            MessagesState.getState().messages.push(
+                new ViewMessage({
+                    type: "user",
+                    message: userMessage?.message ?? "",
+                    subMessage: response.data.correction,
+                })
+            );
 
-        MessagesState.getState().messages.push(
-            new ViewMessage({
-                type: "assistant",
-                message: "OK! Let's continue!",
-                subMessage: null,
-            })
-        );
+            MessagesState.getState().messages.push(
+                new ViewMessage({
+                    type: "assistant",
+                    message: response.data.message,
+                    subMessage: null,
+                })
+            );
+            MessagesState.getState().notify();
 
-        MessagesState.getState().notify();
+        }catch(error){
+            console.error("Error:", error);
+            //TODO エラー処理
+        }
 
         LoadState.getState().isLoading = false;
         LoadState.getState().notify();

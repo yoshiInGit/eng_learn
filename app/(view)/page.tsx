@@ -17,6 +17,7 @@ export default function Home() {
       askSituation()
       startFlag.current = false;
     }
+
   },[])
 
   // メッセージの状態を管理する
