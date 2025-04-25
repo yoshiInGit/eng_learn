@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { invokeGemini } from "../gemini";
 
 /*
 requestBody:{
@@ -13,9 +14,26 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
     console.log("conversation", conversation); 
 
     //TODO : ここで会話の状況を設定するAPIを呼び出す
+    const res = await invokeGemini({prompt: prompt({situation})});
 
 
     return NextResponse.json({ 
-        message: "HEllo! How are you doing?", 
+        message: res, 
     });
 }
+
+const prompt = ({situation}:{situation : string}) => `
+これからあなたと私で与えられた状況で英語で会話をします。
+まずあなたから会話をはじめてください。
+会話はできるだけ質問になるようにしてください。
+会話では"/"を使って文を構成せず、適当に確定した文にしてください。
+<example>
+Good morning, sir.
+</example>
+
+<situation>
+${situation}
+</situation>
+
+ASSISTANT:
+`

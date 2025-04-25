@@ -29,6 +29,8 @@ export const askSituation = async () => {
 export const sendMessage = async ({message}:{message: string}) => {
     // SITUATIONの状態でメッセージを送信した場合、会話の状況を設定する
     const onAskSituation = async () => {
+        MessageHistory.getInstance().setSituation(message); // 状況を設定
+
         MessagesState.getState().messages.push(
             new ViewMessage({
                 type: "user",
@@ -74,6 +76,9 @@ export const sendMessage = async ({message}:{message: string}) => {
             );
             MessagesState.getState().notify();
 
+            // MessageHistoryにメッセージを追加
+            MessageHistory.getInstance().addAssistantMessage(response.data.message);
+
         } catch (error) {
             console.error("Error:", error);
             //TODO エラー処理
@@ -89,6 +94,7 @@ export const sendMessage = async ({message}:{message: string}) => {
 
     // CONVERSATIONの状態でメッセージを送信した場合、会話を続ける
     const onConversation = async () => {
+        // ユーザーのメッセージを画面に追加
         MessagesState.getState().messages.push(
             new ViewMessage({
                 type: "user",
@@ -100,11 +106,17 @@ export const sendMessage = async ({message}:{message: string}) => {
 
         LoadState.getState().isLoading = true;
         LoadState.getState().notify();
+
+        //APIに必要な情報を整理
+        const situation = MessageHistory.getInstance().getSituation(); // 会話の状況
+        const messageHistory = MessageHistory.getInstance().getHistoryAsString(); // 会話の履歴
+
         
         try{
             const response = await axios.post("/api/getResponse", {
-                situation: MessagesState.getState().messages[0].message,
-                conversation: message,
+                situation:      situation,
+                messageHistory: messageHistory,
+                userMessage:    message,
             });
 
             const userMessage = MessagesState.getState().messages.pop(); // ユーザーメッセージを添削込みの状態にする
@@ -125,6 +137,10 @@ export const sendMessage = async ({message}:{message: string}) => {
             );
             MessagesState.getState().notify();
 
+            // MessageHistoryにメッセージを追加
+            MessageHistory.getInstance().addUserMessage(message); // ユーザーメッセージを追加
+            MessageHistory.getInstance().addAssistantMessage(response.data.message); // 会話履歴に追加
+
         }catch(error){
             console.error("Error:", error);
             //TODO エラー処理
@@ -135,7 +151,6 @@ export const sendMessage = async ({message}:{message: string}) => {
     }
 
 
-    
     switch (phaseState.getState().phase) {
         case "ASK_SITUATION":
             await onAskSituation();
@@ -145,10 +160,14 @@ export const sendMessage = async ({message}:{message: string}) => {
             break;
     }
 
+    console.log("messageHistory", MessageHistory.getInstance().getHistoryAsString());
+
 }
 
 
 export const resetConversation = async () => {
+    MessageHistory.getInstance().clearAll(); // メッセージ履歴をクリア
+
     // 会話のリセットを行う    
     MessagesState.getState().messages = [];
     MessagesState.getState().notify();
@@ -163,4 +182,60 @@ export const resetConversation = async () => {
 
     LoadState.getState().isLoading = false;
     LoadState.getState().notify();
+}
+
+// メッセージの履歴
+type Message ={
+    type: "user" | "assistant";
+    message: string;
+}
+
+class MessageHistory {
+    private static instance: MessageHistory | null = null;
+    private situation: string = "";
+    private history: Message[] = [];
+
+    private constructor() {
+        // private constructorで外部からのインスタンス化を防止
+    }
+
+    static getInstance(): MessageHistory {
+        if (!MessageHistory.instance) {
+            MessageHistory.instance = new MessageHistory();
+        }
+        return MessageHistory.instance;
+    }
+
+    setSituation(situation: string) {
+        this.situation = situation; 
+    }
+
+    getSituation(): string {
+        return this.situation;
+    }
+
+    addAssistantMessage(message: string) {
+        this.history.push({
+            type: "assistant",
+            message: message,
+        });
+    }
+
+    addUserMessage(message: string) {
+        this.history.push({
+            type: "user",
+            message: message,
+        });
+    }
+
+    getHistoryAsString(): string {
+        return this.history
+            .map((msg) => `${msg.type}: ${msg.message}`)
+            .join("\n");
+    }
+
+    clearAll() {
+        this.situation = "";
+        this.history = [];
+    }
 }
