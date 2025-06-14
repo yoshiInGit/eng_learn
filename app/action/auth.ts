@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../lib/firebase";
+import AuthState from "./state/authState";
 
 // パスワードのバリデーション
 export const validatePassword = (password: string): {
@@ -57,6 +58,19 @@ export const logout = async (): Promise<void> => {
 };
 
 // 認証状態を監視（ログイン中ユーザー取得など）
-// export const onAuthChange = (callback: (user: User | null) => void): void => {
-//   onAuthStateChanged(auth, callback);
-// };
+export const initAuth = (callback: (user: User | null) => void): void => {
+  onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in
+
+    AuthState.getState().user = user;
+    AuthState.getState().notify();
+  } else {
+    // User is signed out
+    
+    AuthState.getState().user = user;
+    AuthState.getState().notify();;
+  }
+});
+
+};
