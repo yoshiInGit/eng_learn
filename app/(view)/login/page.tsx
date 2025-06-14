@@ -46,6 +46,16 @@ const Login = () => {
 
   }
 
+  const onLoginClick = async () => {
+    // ログイン処理を実装
+    try {
+      await signUp(emailRef.current, passwordRef.current);
+      router.push('/'); // ログイン成功後、ホームページにリダイレクト
+    } catch (error) {
+      //TODO: エラー処理  
+    }
+}
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       {/* フォームコンテナ */}
