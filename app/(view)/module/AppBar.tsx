@@ -62,7 +62,7 @@ const AppBar: React.FC = () => {
   return (
     <>
     <div className="relative top-0 left-0 w-full bg-white text-shadow-gray-700 p-4 shadow-md z-10 flex items-center">
-        { isLogin ??
+        { isLogin === true ?
           <>
           <Menu 
             className='cursor-pointer'
@@ -70,7 +70,7 @@ const AppBar: React.FC = () => {
 
           <div className="w-6"></div>        
           </>
-        }
+        : null }
         
         <h1 className="text-xl font-bold">英会話AI</h1>
         <div className="flex-grow"></div>
