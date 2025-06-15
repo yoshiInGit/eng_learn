@@ -8,6 +8,7 @@ import InputBox from "./module/InputBox";
 import { useEffect, useRef, useState } from "react";
 import { askSituation } from "../action/conversation";
 import MessagesState from "../action/state/messageState";
+import { initAuth } from "../action/auth";
 
 export default function Home() {
   // 初期化
@@ -15,6 +16,7 @@ export default function Home() {
   useEffect(()=>{
     if(startFlag.current){
       askSituation()
+      initAuth();
       startFlag.current = false;
     }
   },[])

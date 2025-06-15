@@ -58,8 +58,9 @@ export const logout = async (): Promise<void> => {
 };
 
 // 認証状態を監視（ログイン中ユーザー取得など）
-export const initAuth = (callback: (user: User | null) => void): void => {
+export const initAuth = (): void => {
   onAuthStateChanged(auth, (user) => {
+  
   if (user) {
     // User is signed in
 
