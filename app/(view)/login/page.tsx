@@ -4,6 +4,8 @@ import { Mail, Lock} from 'lucide-react';
 import { useRef, useState } from 'react';
 import { signUp, validatePassword } from '../../action/auth'; 
 import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/app/lib/firebase';
 
 const Login = () => {
   const router = useRouter()
@@ -46,15 +48,19 @@ const Login = () => {
 
   }
 
-  const onLoginClick = async () => {
-    // ログイン処理を実装
-    try {
-      await signUp(emailRef.current, passwordRef.current);
-      router.push('/'); // ログイン成功後、ホームページにリダイレクト
-    } catch (error) {
-      //TODO: エラー処理  
-      console.error("ログインエラー:", error);      
-    }
+const onLoginClick = async () => {
+  // ログイン処理を実装
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      emailRef.current,
+      passwordRef.current
+    );
+    router.push('/'); // ログイン成功後、ホームページにリダイレクト
+  } catch (error) {
+    //TODO: エラー処理  
+    console.error("ログインエラー:", error);      
+  }
 }
 
   return (
