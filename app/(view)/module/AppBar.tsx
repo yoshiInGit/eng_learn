@@ -2,12 +2,13 @@
 
 import React, { useEffect } from 'react';
 import ConfirmDialog from './ConfirmDialog';
-import { ChevronLeft, CircleUser, Menu, RotateCcw } from 'lucide-react';
+import { ChevronLeft, CircleUser, LogOut, Menu, RotateCcw } from 'lucide-react';
 import { resetConversation } from '@/app/action/conversation';
 import { useRouter } from "next/navigation";
-import { User } from 'firebase/auth';
+import { signOut, User } from 'firebase/auth';
 import AuthState from '@/app/action/state/authState';
 import { AnimatePresence, motion } from 'framer-motion';
+import { auth } from '@/app/lib/firebase';
 
 
 const AppBar: React.FC = () => {
@@ -34,6 +35,12 @@ const AppBar: React.FC = () => {
       AuthState.getState().unsubscribe(handleAuthStateChange);
     }
   }, []);
+
+  const handleLogout = () => {
+    // ログアウト処理を実行
+    signOut(auth);
+    router.push('/login'); // ログアウト後にログインページへリダイレクト
+  } 
 
   // サイドバーのアニメーション設定
   const sidebarVariants = {
@@ -102,6 +109,7 @@ const AppBar: React.FC = () => {
       message={'会話をリセットしますか？'}
     />
 
+      {/* サイドバー */}
       <AnimatePresence>
         {isSidebarOpen &&
           <motion.div 
@@ -112,17 +120,24 @@ const AppBar: React.FC = () => {
             exit="exit"
             onClick={() => setIsSidebarOpen(false)}>
             <motion.div 
-              className='absolute top-0 bottom-0 left-0 w-[80%] bg-white flex flex-col px-2 py-4'
+              className='absolute top-0 bottom-0 left-0 w-[80%] bg-white flex flex-col py-4'
               variants={sidebarVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
               onClick={(e) => e.stopPropagation()}>
 
-              <div className='w-full flex justify-end'>
+              <div className='w-full flex justify-end px-2'>
                 <ChevronLeft 
                   className='cursor-pointer'
                   onClick={()=>setIsSidebarOpen(false)}/>
+              </div>
+
+              <div
+                onClick={handleLogout} 
+                className='w-full flex justify-start gap-2 p-2 hover:bg-gray-100 cursor-pointer px-4'>
+                  <LogOut />
+                  <h2 className='text-lg text-gray-700 font-bold'>ログアウト</h2>
               </div>
 
             </motion.div>
