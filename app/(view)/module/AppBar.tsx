@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import ConfirmDialog from './ConfirmDialog';
-import { ChevronLeft, CircleUser, LogOut, Menu, RotateCcw } from 'lucide-react';
+import { ChevronLeft, CircleUser, Ellipsis, LogOut, Menu, RotateCcw, Save } from 'lucide-react';
 import { resetConversation } from '@/app/action/conversation';
 import { useRouter } from "next/navigation";
 import { signOut, User } from 'firebase/auth';
@@ -139,6 +139,32 @@ const AppBar: React.FC = () => {
                   <LogOut />
                   <h2 className='text-lg text-gray-700 font-bold'>ログアウト</h2>
               </div>
+
+              <div className='h-16'/>
+
+              {/* DIvider */}
+              <div className='w-full h-[1px] bg-gray-200 my-2'></div>
+
+              <div
+                onClick={() => {}}
+                className='w-full flex justify-start gap-2 p-2 hover:bg-gray-100 cursor-pointer px-4'>
+                  <Save />
+                  <h2 className='text-lg text-gray-700 font-bold'>状況を保存する</h2>
+              </div>
+
+              <div className='h-8'/>
+              <div className='w-full flex justify-start '>
+                <h2 className='text-sm text-gray-700 font-bold px-4'>保存した状況</h2>
+              </div>
+
+              <div
+                onClick={() => {}}
+                className='w-full flex justify-start gap-2 p-4 hover:bg-gray-100 cursor-pointer px-4'>
+                  <h2 className=' text-gray-700 font-bold'>空港の保安検査</h2>
+                  <div className='flex-grow'></div>
+                  <Ellipsis />
+              </div>
+
 
             </motion.div>
         </motion.div>}
