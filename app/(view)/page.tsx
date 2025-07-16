@@ -17,17 +17,17 @@ export default function Home() {
       askSituation()
       startFlag.current = false;
     }
-
   },[])
 
   // メッセージの状態を管理する
-  //スクロール用
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<ViewMessage[]>([]);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    // メッセージの状態が変化したときのコールバック関数
     const handleMessagesChange = (messages: ViewMessage[]) => {
       setMessages([...messages]);
       
+      // スクロールを最新のメッセージに合わせて自動スクロール
       if (scrollRef.current) {
         scrollRef.current.scrollTo({
           top: scrollRef.current.scrollHeight,
@@ -65,7 +65,8 @@ export default function Home() {
           </div>
         </div>
 
-        <InputBox/>
+      {/* 入力ボックス */}
+      <InputBox/>
 
     </ContentWrapper>
   );
