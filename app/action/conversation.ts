@@ -190,7 +190,7 @@ type Message ={
     message: string;
 }
 
-class MessageHistory {
+export class MessageHistory {
     private static instance: MessageHistory | null = null;
     private situation: string = "";
     private history: Message[] = [];
